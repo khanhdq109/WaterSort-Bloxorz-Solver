@@ -1,0 +1,17 @@
+Step 1:1->6
+Step 2:4->1
+Step 3:5->1
+Step 4:2->6
+Step 5:2->4
+Step 6:1->7
+Step 7:3->1
+Step 8:3->7
+Step 9:3->1
+Step 10:2->3
+Step 11:1->2
+Step 12:4->1
+Step 13:5->1
+Step 14:4->3
+Step 15:5->6
+Step 16:1->4
+Step 17:3->5
