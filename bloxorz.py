@@ -13,12 +13,14 @@
 
 import sys
 import copy
+import numpy as np
 
 def printBoard(board):
-    print("======================================================")
+    row, col = np.shape(board)
+    print('=' * col * 3)
     for i in board:
         print(i)
-    print("======================================================")
+    print('=' * col * 3)
 
 class Cube:
     def __init__(self, 
@@ -148,7 +150,7 @@ def equal_block(block_1: Block, block_2: Block):
         return True
     return False
         
-class State:
+class Solver:
     def __init__(self, items: list):
         self.items = items # list of items (X, O button,...) in the board
         self.passed = [] # list of passed states
@@ -297,6 +299,16 @@ class State:
         for i in range(len(result)):
             print('\n'+ result[i] + ': (' + str(b[i].cube_1.x) + ', ' + str(b[i].cube_1.y) + '), (' + str(b[i].cube_2.x) + ', ' + str(b[i].cube_2.y) + ')')
         print('\nGOAL: (' + str(temp.cube_1.x) + ', ' + str(temp.cube_1.y) + '), (' + str(temp.cube_2.x) + ', ' + str(temp.cube_2.y) + ')\n')
+       
+    def process(self, queue: list, block: Block, split: bool,):
+        if not block.isDead():
+            self.button(block)
+            if split:
+                self.Fusion(block)
+            if not self.visited(block):
+                queue.append(block)
+                self.passed.append(block)
+        return
         
     def BFS(self, init_block: Block):
         self.passed = []
@@ -315,119 +327,63 @@ class State:
                 # Move up
                 up_1, up_2 = current.up()
                 temp_up = Block(up_1, up_2, current, "UP", current.board)
-                if not temp_up.isDead():
-                    self.button(temp_up)
-                    if not self.visited(temp_up):
-                        queue.append(temp_up)
-                        self.passed.append(temp_up)
+                self.process(queue, temp_up, False)
                 
                 # Move down
                 down_1, down_2 = current.down()
                 temp_down = Block(down_1, down_2, current, "DOWN", current.board)
-                if not temp_down.isDead():
-                    self.button(temp_down)
-                    if not self.visited(temp_down):
-                        queue.append(temp_down)
-                        self.passed.append(temp_down)
+                self.process(queue, temp_down, False)
                 
                 # Move right
                 right_1, right_2 = current.right()
                 temp_right = Block(right_1, right_2, current, "RIGHT", current.board)
-                if not temp_right.isDead():
-                    self.button(temp_right)
-                    if not self.visited(temp_right):
-                        queue.append(temp_right)
-                        self.passed.append(temp_right)
+                self.process(queue, temp_right, False)
                 
                 # Move left
                 left_1, left_2 = current.left()
                 temp_left = Block(left_1, left_2, current, "LEFT", current.board)
-                if not temp_left.isDead():
-                    self.button(temp_left)
-                    if not self.visited(temp_left):
-                        queue.append(temp_left)
-                        self.passed.append(temp_left)
+                self.process(queue, temp_left, False)
+                
             else:
                 # Cube 1 move up
                 c1_up1, c1_up2 = current.cube_1_up()
                 temp1_up = Block(c1_up1, c1_up2, current, "CUBE 1 UP", current.board, True)
-                if not temp1_up.isDead():
-                    self.button(temp1_up)
-                    self.Fusion(temp1_up)
-                    if not self.visited(temp1_up):
-                        self.Fusion(temp1_up)
-                        queue.append(temp1_up)
-                        self.passed.append(temp1_up)
+                self.process(queue, temp1_up, True)
                 
                 # Cube 1 move down
                 c1_down1, c1_down2 = current.cube_1_down()
                 temp1_down = Block(c1_down1, c1_down2, current, "CUBE 1 DOWN", current.board, True)
-                if not temp1_down.isDead():
-                    self.button(temp1_down)
-                    self.Fusion(temp1_down)
-                    if not self.visited(temp1_down):
-                        queue.append(temp1_down)
-                        self.passed.append(temp1_down)
+                self.process(queue, temp1_down, True)
                         
                 # Cube 1 move right
                 c1_right1, c1_right2 = current.cube_1_right()
                 temp1_right = Block(c1_right1, c1_right2, current, "CUBE 1 RIGHT", current.board, True)
-                if not temp1_right.isDead():
-                    self.button(temp1_right)
-                    self.Fusion(temp1_right)
-                    if not self.visited(temp1_right):
-                        queue.append(temp1_right)
-                        self.passed.append(temp1_right)
+                self.process(queue, temp1_right, True)
                         
                 # Cube 1 move left
                 c1_left1, c1_left2 = current.cube_1_left()
                 temp1_left = Block(c1_left1, c1_left2, current, "CUBE 1 LEFT", current.board, True)
-                if not temp1_left.isDead():
-                    self.button(temp1_left)
-                    self.Fusion(temp1_left)
-                    if not self.visited(temp1_left):
-                        queue.append(temp1_left)
-                        self.passed.append(temp1_left)
+                self.process(queue, temp1_left, True)
                 
                 # Cube 2 move up
                 c2_up1, c2_up2 = current.cube_2_up()
                 temp2_up = Block(c2_up1, c2_up2, current, "CUBE 2 UP", current.board, True)
-                if not temp2_up.isDead():
-                    self.button(temp2_up)
-                    self.Fusion(temp2_up)
-                    if not self.visited(temp2_up):
-                        queue.append(temp2_up)
-                        self.passed.append(temp2_up)
+                self.process(queue, temp2_up, True)
                 
                 # Cube 2 move down
                 c2_down1, c2_down2 = current.cube_2_down()
                 temp2_down = Block(c2_down1, c2_down2, current, "CUBE 2 DOWN", current.board, True)
-                if not temp2_down.isDead():
-                    self.button(temp2_down)
-                    self.Fusion(temp2_down)
-                    if not self.visited(temp2_down):
-                        queue.append(temp2_down)
-                        self.passed.append(temp2_down)
+                self.process(queue, temp2_down, True)
                         
                 # Cube 2 move right
                 c2_right1, c2_right2 = current.cube_2_right()
                 temp2_right = Block(c2_right1, c2_right2, current, "CUBE 2 RIGHT", current.board, True)
-                if not temp2_right.isDead():
-                    self.button(temp2_right)
-                    self.Fusion(temp2_right)
-                    if not self.visited(temp2_right):
-                        queue.append(temp2_right)
-                        self.passed.append(temp2_right)
+                self.process(queue, temp2_right, True)
                         
                 # Cube 2 move left
                 c2_left1, c2_left2 = current.cube_2_left()
                 temp2_left = Block(c2_left1, c2_left2, current, "CUBE 2 LEFT", current.board, True)
-                if not temp2_left.isDead():
-                    self.button(temp2_left)
-                    self.Fusion(temp2_left)
-                    if not self.visited(temp2_left):
-                        queue.append(temp2_left)
-                        self.passed.append(temp2_left)
+                self.process(queue, temp2_left, True)
                         
         print("UNSUCCESS!!!")
         return False
@@ -457,5 +413,5 @@ board, items, init_x, init_y = readBoard('Stage\Stage_' + str(sys.argv[1:][0]) +
 printBoard(board)
 cube = Cube(init_x, init_y)
 init_block = Block(cube_1 = cube, cube_2 = cube, board = board)
-state = State(items)
+state = Solver(items)
 state.BFS(init_block)
