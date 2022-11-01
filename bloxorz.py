@@ -13,10 +13,15 @@
 
 import sys
 import copy
+import time
+import random
 import numpy as np
+
+random.seed(time.time())
 
 def printBoard(board):
     row, col = np.shape(board)
+    print("\nBOARD:")
     print('=' * col * 3)
     for i in board:
         print(i)
@@ -25,7 +30,8 @@ def printBoard(board):
 class Cube:
     def __init__(self, 
                  X: int, 
-                 Y: int,):
+                 Y: int,
+    ):
         self.x = copy.deepcopy(X)
         self.y = copy.deepcopy(Y) 
            
@@ -34,7 +40,7 @@ class Block:
                  cube_1: Cube,
                  cube_2: Cube,
                  parent: 'Block' = None,
-                 parent_step: str = "START",
+                 parent_step: str = "- START",
                  board: list = None,
                  split: bool = False,
     ):
@@ -125,6 +131,124 @@ class Block:
     
     def cube_2_left(self):
         return Cube(self.cube_1.x, self.cube_1.y), Cube(self.cube_2.x, self.cube_2.y - 1)
+    
+    # BUTTON 3: X - ON and OFF (heavy)
+    def button3(self, items: list):
+        if self.board[self.cube_1.x][self.cube_1.y] != 3 or self.board[self.cube_2.x][self.cube_2.y] != 3:
+            return
+        
+        for i in items:
+            if i[0] == self.cube_1.x and i[1] == self.cube_1.y:
+                if i[2] == -1: 
+                    return # X button but no bridge is created
+                if self.board[i[2]][i[3]] == 0:
+                    self.board[i[2]][i[3]] = 1
+                    if i[4] != -1: # Sometimes we just creat one tile
+                        self.board[i[4]][i[5]] = 1
+                else:
+                    self.board[i[2]][i[3]] = 0
+                    if i[4] != -1: # Sometimes we just erase one tile
+                        self.board[i[4]][i[5]] = 0
+                if len(i) == 10: # Creat 2 bridge
+                    if self.board[i[6]][i[7]] == 0:
+                        self.board[i[6]][i[7]] = 1
+                        if i[8] != -1: # Sometimes we just erase one tile
+                            self.board[i[8]][i[9]] = 1
+                    else:
+                        self.board[i[6]][i[7]] = 0
+                        if i[8] != -1: # Sometimes we just erase one tile
+                            self.board[i[8]][i[9]] = 0
+                return
+    
+    # BUTTON 4: O - ON and OFF (soft)
+    def button4(self, items: list):
+        if self.board[self.cube_1.x][self.cube_1.y] != 4 and self.board[self.cube_2.x][self.cube_2.y] != 4:
+            return
+        
+        X, Y = -1, -1
+        if self.board[self.cube_1.x][self.cube_1.y] == 4:
+            X = self.cube_1.x
+            Y = self.cube_1.y
+        else:
+            X = self.cube_2.x
+            Y = self.cube_2.y
+            
+        for i in items:
+            if i[0] == X and i[1] == Y:
+                if self.board[i[2]][i[3]] == 0:
+                    self.board[i[2]][i[3]] = 1
+                    self.board[i[4]][i[5]] = 1
+                else:
+                    self.board[i[2]][i[3]] = 0
+                    self.board[i[4]][i[5]] = 0
+                return
+            
+    # BUTTON 6: O - Only ON (soft)
+    def button6(self, items: list):
+        if self.board[self.cube_1.x][self.cube_1.y] != 6 and self.board[self.cube_2.x][self.cube_2.y] != 6:
+            return
+
+        X, Y = -1, -1
+        if self.board[self.cube_1.x][self.cube_1.y] == 6:
+            X = self.cube_1.x
+            Y = self.cube_1.y
+        else:
+            X = self.cube_2.x
+            Y = self.cube_2.y
+            
+        for i in items:
+            if i[0] == X and i[1] == Y:
+                self.board[i[2]][i[3]] = 1
+                self.board[i[4]][i[5]] = 1
+                return
+    
+    # BUTTON 7: O - Only OFF (soft)
+    def button7(self, items: list):
+        if self.board[self.cube_1.x][self.cube_1.y] != 7 and self.board[self.cube_2.x][self.cube_2.y] != 7:
+            return
+
+        X, Y = -1, -1
+        if self.board[self.cube_1.x][self.cube_1.y] == 7:
+            X = self.cube_1.x
+            Y = self.cube_1.y
+        else:
+            X = self.cube_2.x
+            Y = self.cube_2.y
+            
+        for i in items:
+            if i[0] == X and i[1] == Y:
+                self.board[i[2]][i[3]] = 0
+                self.board[i[4]][i[5]] = 0
+                return
+            
+    # BUTTON 8: Teleport and Split gate
+    def button8(self, items: list):  
+        if self.split or self.board[self.cube_1.x][self.cube_1.y] != 8 or self.board[self.cube_2.x][self.cube_2.y] != 8:
+            return
+        
+        self.split = True
+        
+        X, Y = -1, -1
+        if self.board[self.cube_1.x][self.cube_1.y] == 8:
+            X = self.cube_1.x
+            Y = self.cube_1.y
+        else:
+            X = self.cube_2.x
+            Y = self.cube_2.y
+            
+        for i in self.items:
+            if i[0] == X and i[1] == Y:
+                self.cube_1.x = i[2]
+                self.cube_1.y = i[3]
+                self.cube_2.x = i[4]
+                self.cube_2.y = i[5]
+                return
+            
+    # Combine 2 cubes into 1 block
+    def Fusion(self):
+        if (abs(self.cube_1.x - self.cube_2.x) == 1 and abs(self.cube_1.y - self.cube_2.y) == 0) or (abs(self.cube_1.x - self.cube_2.x) == 0 and abs(self.cube_1.y - self.cube_2.y) == 1):
+            self.split = False
+        return
                     
     def isDead(self):
         if self.board[self.cube_1.x][self.cube_1.y] * self.board[self.cube_2.x][self.cube_2.y] == 0:
@@ -150,8 +274,10 @@ def equal_block(block_1: Block, block_2: Block):
         return True
     return False
         
-class Solver:
-    def __init__(self, items: list):
+class BFS:
+    def __init__(self, 
+                 items: list,
+    ):
         self.items = items # list of items (X, O button,...) in the board
         self.passed = [] # list of passed states
         
@@ -161,136 +287,18 @@ class Solver:
                 return True
         return False
     
-    # BUTTON 3: X - ON and OFF (heavy)
-    def button3(self, block: Block):
-        if block.board[block.cube_1.x][block.cube_1.y] != 3 or block.board[block.cube_2.x][block.cube_2.y] != 3:
-            return
-        
-        for i in self.items:
-            if i[0] == block.cube_1.x and i[1] == block.cube_1.y:
-                if i[2] == -1: 
-                    return # X button but no bridge is created
-                if block.board[i[2]][i[3]] == 0:
-                    block.board[i[2]][i[3]] = 1
-                    if i[4] != -1: # Sometimes we just creat one tile
-                        block.board[i[4]][i[5]] = 1
-                else:
-                    block.board[i[2]][i[3]] = 0
-                    if i[4] != -1: # Sometimes we just erase one tile
-                        block.board[i[4]][i[5]] = 0
-                if len(i) == 10: # Creat 2 bridge
-                    if block.board[i[6]][i[7]] == 0:
-                        block.board[i[6]][i[7]] = 1
-                        if i[8] != -1: # Sometimes we just erase one tile
-                            block.board[i[8]][i[9]] = 1
-                    else:
-                        block.board[i[6]][i[7]] = 0
-                        if i[8] != -1: # Sometimes we just erase one tile
-                            block.board[i[8]][i[9]] = 0
-                return
-    
-    # BUTTON 4: O - ON and OFF (soft)
-    def button4(self, block: Block):
-        if block.board[block.cube_1.x][block.cube_1.y] != 4 and block.board[block.cube_2.x][block.cube_2.y] != 4:
-            return
-        
-        X, Y = -1, -1
-        if block.board[block.cube_1.x][block.cube_1.y] == 4:
-            X = block.cube_1.x
-            Y = block.cube_1.y
-        else:
-            X = block.cube_2.x
-            Y = block.cube_2.y
-            
-        for i in self.items:
-            if i[0] == X and i[1] == Y:
-                if block.board[i[2]][i[3]] == 0:
-                    block.board[i[2]][i[3]] = 1
-                    block.board[i[4]][i[5]] = 1
-                else:
-                    block.board[i[2]][i[3]] = 0
-                    block.board[i[4]][i[5]] = 0
-                return
-            
-    # BUTTON 6: O - Only ON (soft)
-    def button6(self, block: Block):
-        if block.board[block.cube_1.x][block.cube_1.y] != 6 and block.board[block.cube_2.x][block.cube_2.y] != 6:
-            return
-
-        X, Y = -1, -1
-        if block.board[block.cube_1.x][block.cube_1.y] == 6:
-            X = block.cube_1.x
-            Y = block.cube_1.y
-        else:
-            X = block.cube_2.x
-            Y = block.cube_2.y
-            
-        for i in self.items:
-            if i[0] == X and i[1] == Y:
-                block.board[i[2]][i[3]] = 1
-                block.board[i[4]][i[5]] = 1
-                return
-    
-    # BUTTON 7: O - Only OFF (soft)
-    def button7(self, block: Block):
-        if block.board[block.cube_1.x][block.cube_1.y] != 7 and block.board[block.cube_2.x][block.cube_2.y] != 7:
-            return
-
-        X, Y = -1, -1
-        if block.board[block.cube_1.x][block.cube_1.y] == 7:
-            X = block.cube_1.x
-            Y = block.cube_1.y
-        else:
-            X = block.cube_2.x
-            Y = block.cube_2.y
-            
-        for i in self.items:
-            if i[0] == X and i[1] == Y:
-                block.board[i[2]][i[3]] = 0
-                block.board[i[4]][i[5]] = 0
-                return
-            
-    # BUTTON 8: Teleport and Split gate
-    def button8(self, block: Block):  
-        if block.split or block.board[block.cube_1.x][block.cube_1.y] != 8 or block.board[block.cube_2.x][block.cube_2.y] != 8:
-            return
-        
-        block.split = True
-        
-        X, Y = -1, -1
-        if block.board[block.cube_1.x][block.cube_1.y] == 8:
-            X = block.cube_1.x
-            Y = block.cube_1.y
-        else:
-            X = block.cube_2.x
-            Y = block.cube_2.y
-            
-        for i in self.items:
-            if i[0] == X and i[1] == Y:
-                block.cube_1.x = i[2]
-                block.cube_1.y = i[3]
-                block.cube_2.x = i[4]
-                block.cube_2.y = i[5]
-                return
-            
-    # Combine 2 cubes into 1 block
-    def Fusion(self, block: Block):
-        if (abs(block.cube_1.x - block.cube_2.x) == 1 and abs(block.cube_1.y - block.cube_2.y) == 0) or (abs(block.cube_1.x - block.cube_2.x) == 0 and abs(block.cube_1.y - block.cube_2.y) == 1):
-            block.split = False
-        return
-    
     def button(self, block: Block):
-        self.button3(block)
-        self.button4(block)
-        self.button6(block)
-        self.button7(block)
-        self.button8(block)
+        block.button3(self.items)
+        block.button4(self.items)
+        block.button6(self.items)
+        block.button7(self.items)
+        block.button8(self.items)
     
     def path(self, block: Block):
         temp = block
         result = []
         b = []
-        while block.parent_step != "START":
+        while block.parent_step != "- START":
             result.insert(0, block.parent_step)
             b.insert(0, block)
             block = block.parent
@@ -298,19 +306,19 @@ class Solver:
         b.insert(0, block)
         for i in range(len(result)):
             print('\n'+ result[i] + ': (' + str(b[i].cube_1.x) + ', ' + str(b[i].cube_1.y) + '), (' + str(b[i].cube_2.x) + ', ' + str(b[i].cube_2.y) + ')')
-        print('\nGOAL: (' + str(temp.cube_1.x) + ', ' + str(temp.cube_1.y) + '), (' + str(temp.cube_2.x) + ', ' + str(temp.cube_2.y) + ')\n')
+        print('\n--> GOAL: (' + str(temp.cube_1.x) + ', ' + str(temp.cube_1.y) + '), (' + str(temp.cube_2.x) + ', ' + str(temp.cube_2.y) + ')\n')
        
     def process(self, queue: list, block: Block, split: bool,):
         if not block.isDead():
             self.button(block)
             if split:
-                self.Fusion(block)
+                block.Fusion()
             if not self.visited(block):
                 queue.append(block)
                 self.passed.append(block)
         return
         
-    def BFS(self, init_block: Block):
+    def bfs(self, init_block: Block):
         self.passed = []
         queue = []
         queue.append(init_block)
@@ -326,67 +334,134 @@ class Solver:
             if not current.split:
                 # Move up
                 up_1, up_2 = current.up()
-                temp_up = Block(up_1, up_2, current, "UP", current.board)
+                temp_up = Block(up_1, up_2, current, "- UP", current.board)
                 self.process(queue, temp_up, False)
                 
                 # Move down
                 down_1, down_2 = current.down()
-                temp_down = Block(down_1, down_2, current, "DOWN", current.board)
+                temp_down = Block(down_1, down_2, current, "- DOWN", current.board)
                 self.process(queue, temp_down, False)
                 
                 # Move right
                 right_1, right_2 = current.right()
-                temp_right = Block(right_1, right_2, current, "RIGHT", current.board)
+                temp_right = Block(right_1, right_2, current, "- RIGHT", current.board)
                 self.process(queue, temp_right, False)
                 
                 # Move left
                 left_1, left_2 = current.left()
-                temp_left = Block(left_1, left_2, current, "LEFT", current.board)
+                temp_left = Block(left_1, left_2, current, "- LEFT", current.board)
                 self.process(queue, temp_left, False)
                 
             else:
                 # Cube 1 move up
                 c1_up1, c1_up2 = current.cube_1_up()
-                temp1_up = Block(c1_up1, c1_up2, current, "CUBE 1 UP", current.board, True)
+                temp1_up = Block(c1_up1, c1_up2, current, "- CUBE 1 UP", current.board, True)
                 self.process(queue, temp1_up, True)
                 
                 # Cube 1 move down
                 c1_down1, c1_down2 = current.cube_1_down()
-                temp1_down = Block(c1_down1, c1_down2, current, "CUBE 1 DOWN", current.board, True)
+                temp1_down = Block(c1_down1, c1_down2, current, "- CUBE 1 DOWN", current.board, True)
                 self.process(queue, temp1_down, True)
                         
                 # Cube 1 move right
                 c1_right1, c1_right2 = current.cube_1_right()
-                temp1_right = Block(c1_right1, c1_right2, current, "CUBE 1 RIGHT", current.board, True)
+                temp1_right = Block(c1_right1, c1_right2, current, "- CUBE 1 RIGHT", current.board, True)
                 self.process(queue, temp1_right, True)
                         
                 # Cube 1 move left
                 c1_left1, c1_left2 = current.cube_1_left()
-                temp1_left = Block(c1_left1, c1_left2, current, "CUBE 1 LEFT", current.board, True)
+                temp1_left = Block(c1_left1, c1_left2, current, "- CUBE 1 LEFT", current.board, True)
                 self.process(queue, temp1_left, True)
                 
                 # Cube 2 move up
                 c2_up1, c2_up2 = current.cube_2_up()
-                temp2_up = Block(c2_up1, c2_up2, current, "CUBE 2 UP", current.board, True)
+                temp2_up = Block(c2_up1, c2_up2, current, "- CUBE 2 UP", current.board, True)
                 self.process(queue, temp2_up, True)
                 
                 # Cube 2 move down
                 c2_down1, c2_down2 = current.cube_2_down()
-                temp2_down = Block(c2_down1, c2_down2, current, "CUBE 2 DOWN", current.board, True)
+                temp2_down = Block(c2_down1, c2_down2, current, "- CUBE 2 DOWN", current.board, True)
                 self.process(queue, temp2_down, True)
                         
                 # Cube 2 move right
                 c2_right1, c2_right2 = current.cube_2_right()
-                temp2_right = Block(c2_right1, c2_right2, current, "CUBE 2 RIGHT", current.board, True)
+                temp2_right = Block(c2_right1, c2_right2, current, "- CUBE 2 RIGHT", current.board, True)
                 self.process(queue, temp2_right, True)
                         
                 # Cube 2 move left
                 c2_left1, c2_left2 = current.cube_2_left()
-                temp2_left = Block(c2_left1, c2_left2, current, "CUBE 2 LEFT", current.board, True)
+                temp2_left = Block(c2_left1, c2_left2, current, "- CUBE 2 LEFT", current.board, True)
                 self.process(queue, temp2_left, True)
                         
         print("UNSUCCESS!!!")
         return False
+    
+class Genetic:
+    def __init__(self,
+                 items: list,
+                 lenADN: int = 50,
+                 numADN: int = 1000,
+    ):
+        self.items = items
+        self.lenADN = lenADN
+        self.numADN = numADN
+        self.ADNs = []
+        
+    def getGoal(block: Block):
+        row, col = np.shape(block.board)
+        for i in range(row):
+            for j in range(col):
+                if block.board[i][j] == 2:
+                    return i, j
+        return -1, -1
+        
+    def button(self, block: Block):
+        block.button3(self.items)
+        block.button4(self.items)
+        block.button6(self.items)
+        block.button7(self.items)
+        block.button8(self.items)
+        
+    def process(self, block: Block):
+        if not block.isDead():
+            self.button(block)
+            if block.split:
+                block.Fusion()
+        return
+        
+    def random_move(self, block: Block):
+        rand = random.randint(0, 3)
+        if rand == 0:
+            return block.up(), "- UP"
+        elif rand == 1:
+            return block.down(), "- DOWN"
+        elif rand == 2:
+            return block.right(), "- RIGHT"
+        else:
+            return block.left(), "- LEFT"
+        
+    def InitialPopulation(self, init_block):
+        for count_1 in range(self.numADN):
+            ADN = []
+            ADN.append(init_block)
+            for count_2 in range(self.lenADN - 1):
+                current = ADN[len(ADN - 1)]
+                cube_1, cube_2, step = self.random_move(current)
+                block = Block(cube_1, cube_2, current, step, current.board, current.split)
+                self.process(block)
+                ADN.append(block)
+            self.ADNs.append(ADN)
+        return
+    
+    def FitnessFunction(self, ADN: list, goal_x, goal_y):
+        block = ADN[self.lenADN - 1]
+        return abs(block.cube_1.x - goal_x) + abs(block.cube_1.y - goal_y) + abs(block.cube_2.x - goal_x) + abs(block.cube_2.y - goal_y)
+    
+    def Selection(self,): return 0
+    
+    def Crossover(self,): return 0
+    
+    def Mutation(self,): return 0
     
 def readBoard(file):
     with open(file) as f:
@@ -413,5 +488,5 @@ board, items, init_x, init_y = readBoard('Stage\Stage_' + str(sys.argv[1:][0]) +
 printBoard(board)
 cube = Cube(init_x, init_y)
 init_block = Block(cube_1 = cube, cube_2 = cube, board = board)
-state = Solver(items)
-state.BFS(init_block)
+state = BFS(items)
+state.bfs(init_block)
