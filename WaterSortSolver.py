@@ -283,7 +283,3 @@ def getInstuc():
             outf.write("Step " + str(i + 1) + ":" + str(instruct[i][0] + 1) + "->" + str(instruct[i][1] + 1) + '\n')
 
 getInstuc()
-
-
-
-       
