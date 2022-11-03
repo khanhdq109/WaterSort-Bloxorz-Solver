@@ -410,12 +410,15 @@ class BFS:
 class GENETIC:
     def __init__(self,
                  items: list,
+                 board: list,
+                 goal_x: int,
+                 goal_y: int,
                  lenADN: int = 50,
-                 numADN: int = 500,
+                 numADN: int = 200,
     ):
-        self.items = items
-        self.lenADN = lenADN
-        self.numADN = numADN
+        self.items, self.board = items, board
+        self.goal_x, self.goal_y = goal_x, goal_y
+        self.lenADN, self.numADN = lenADN, numADN
         self.ADNs = []
         
     def button(self, block: Block):
@@ -432,7 +435,7 @@ class GENETIC:
         return
         
     def random_move(self, block: Block):
-        rand = random.randint(0, 3)
+        rand = random.randint(0, 4)
         if rand == 0:
             cube_1, cube_2 = block.up()
             return Block(cube_1, cube_2, block, "- UP", block.board, block.split)
@@ -442,9 +445,12 @@ class GENETIC:
         elif rand == 2:
             cube_1, cube_2 = block.right()
             return Block(cube_1, cube_2, block, "- RIGHT", block.board, block.split)
-        else:
+        elif rand == 3:
             cube_1, cube_2 = block.left()
             return Block(cube_1, cube_2, block, "- LEFT", block.board, block.split)
+        else:
+            cube_1, cube_2 = block.cube_1, block.cube_2
+            return Block(cube_1, cube_2, block, "- NONE", block.board, block.split)
         
     def InitGen(self, init_block: Block, size: int):
         ADN = []
@@ -453,10 +459,10 @@ class GENETIC:
             current = ADN[len(ADN) - 1]
             while True:
                 block = self.random_move(current)
-                if not block.isDead(): 
+                if not block.isDead():
+                    self.process(block)
+                    ADN.append(block)
                     break
-            self.process(block)
-            ADN.append(block)
         return ADN
         
     def InitialPopulation(self, init_block: Block):
@@ -465,63 +471,150 @@ class GENETIC:
             self.ADNs.append(ADN)
         return
     
-    def FitnessFunction(self, ADN: list, goal_x: int, goal_y: int):
-        block = ADN[self.lenADN - 1]
-        return abs(block.cube_1.x - goal_x) + abs(block.cube_1.y - goal_y) + abs(block.cube_2.x - goal_x) + abs(block.cube_2.y - goal_y)
+    def FitnessFunction(self, ADN: list):
+        result = 10000
+        
+        # Bonus score
+        for block in ADN:
+            # Check if the block is in orange tiles
+            if not block.isStanding():
+                if self.board[block.cube_1.x][block.cube_1.y] == 5:
+                    result += 50
+                    self.board[block.cube_1.x][block.cube_1.y] = 0
+                if self.board[block.cube_2.x][block.cube_2.y] == 5:
+                    result += 50
+                    self.board[block.cube_2.x][block.cube_2.y] = 0
+            
+            # Check if the block is in X button
+            if block.isStanding():
+                if self.board[block.cube_1.x][block.cube_1.y] == 3:
+                    result += 200
+                    self.board[block.cube_1.x][block.cube_1.y] = 0
+                    
+            # Check if the block is in O button
+            if (
+                self.board[block.cube_1.x][block.cube_1.y] == 4 or self.board[block.cube_2.x][block.cube_2.y] == 4 or
+                self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_2.x][block.cube_2.y] == 6 or
+                self.board[block.cube_1.x][block.cube_1.y] == 7 or self.board[block.cube_2.x][block.cube_2.y] == 7
+            ):
+                result += 200
+                if self.board[block.cube_1.x][block.cube_1.y] == 4 or self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_1.x][block.cube_1.y] == 7:
+                    self.board[block.cube_1.x][block.cube_1.y] = 0
+                else:
+                    self.board[block.cube_2.x][block.cube_2.y] = 0
+                    
+            # Check if the block is in Teleport gates
+            if block.isStanding():
+                if self.board[block.cube_1.x][block.cube_1.y] == 8:
+                    result += 200
+                    self.board[block.cube_1.x][block.cube_1.y] = 0
+                    
+            # Check if the tile is among orange tiles
+            if block.isStanding():
+                if (
+                    self.board[block.cube_1.x][block.cube_1.y] == 1 and
+                    self.board[block.cube_1.x - 1][block.cube_1.y] == 5 and
+                    self.board[block.cube_1.x + 1][block.cube_1.y] == 5 and
+                    self.board[block.cube_1.x][block.cube_1.y - 1] == 5 and
+                    self.board[block.cube_1.x][block.cube_1.y + 1] == 5
+                ):
+                    result += 200
+                    self.board[block.cube_1.x][block.cube_1.y] = 0
+            
+            """
+            # Check if the block is really near the goal
+            if (
+                block.cube_1.x == self.goal_x - 1 or block.cube_1.x == self.goal_x + 1 or
+                block.cube_1.y == self.goal_y - 1 or block.cube_1.y == self.goal_y + 1
+            ): 
+                result += 500
+            if (
+                block.cube_2.x == self.goal_x - 1 or block.cube_2.x == self.goal_x + 1 or
+                block.cube_2.y == self.goal_y - 1 or block.cube_2.y == self.goal_y + 1
+            ): 
+                result += 500
+            """
+            
+        # Main score
+        last_block = ADN[self.lenADN - 1]
+        distance = abs(last_block.cube_1.x - self.goal_x) + abs(last_block.cube_1.y - self.goal_y) + abs(last_block.cube_2.x - self.goal_x) + abs(last_block.cube_2.y - self.goal_y)
+        result -= distance
+        return result
     
-    def Selection(self, thres, goal_x, goal_y):
-        good = []
-        for i in range(self.numADN):
-            res = self.FitnessFunction(self.ADNs[i], goal_x, goal_y)
-            if res <= thres:
-                good.append(self.ADNs[i])
-            else:
-                if len(good) > 0:
-                    idx = random.randint(0, len(good) - 1)
-                    self.ADNs[i] = good[idx]
+    def sorted(self):
+        self.ADNs.sort(key = self.FitnessFunction, reverse = True)
     
-    def Crossover(self, count = 300):
+    def Crossover(self):
+        self.sorted()
+        count = int(self.numADN / 4)
         for i in range(count):
-            ADN_1 = random.randint(0, self.numADN - 1)
-            ADN_2 = random.randint(0, self.numADN - 1)
+            ADN_1 = random.randint(0, self.numADN / 2)
+            ADN_2 = random.randint(0, self.numADN / 2)
             while ADN_2 == ADN_1:
-                ADN_2 = random.randint(0, self.numADN - 1)
+                ADN_2 = random.randint(0, self.numADN / 2)
             for i in range(self.lenADN):
                 if equal_block(self.ADNs[ADN_1][i], self.ADNs[ADN_2][i]):
-                    temp = self.ADNs[ADN_1][i:]
-                    self.ADNs[ADN_1][i:] = self.ADNs[ADN_2][i:]
-                    self.ADNs[ADN_2][i:] = temp
+                    child1, child2 = copy.deepcopy(self.ADNs[ADN_1]), copy.deepcopy(self.ADNs[ADN_2])
+                    child1[i:] = copy.deepcopy(self.ADNs[ADN_2][i:])
+                    child2[i:] = copy.deepcopy(self.ADNs[ADN_1][i:])
+                    self.ADNs.append(child1)
+                    self.ADNs.append(child2)
                     break
-    
-    def Mutation(self, count = 300):
+        self.sorted()
+        self.ADNs = self.ADNs[0:self.numADN]
+        
+    def Crossover2(self):
+        self.sorted()
+        count = int(self.numADN / 4)
         for i in range(count):
-            index_ADN = random.randint(0, self.numADN - 1)
-            index_Gen = random.randint(0, self.lenADN - 1)
+            ADN_1 = random.randint(0, self.numADN / 2)
+            ADN_2 = random.randint(0, self.numADN / 2)
+            while ADN_2 == ADN_1:
+                ADN_2 = random.randint(0, self.numADN / 2)
+            child1, child2 = copy.deepcopy(self.ADNs[ADN_1]), copy.deepcopy(self.ADNs[ADN_2])
+            for i in range(self.lenADN):
+                if equal_block(self.ADNs[ADN_1][i], self.ADNs[ADN_2][i]):
+                    rand = random.randint(0, 1)
+                    if rand == 1:
+                        child1[i:] = copy.deepcopy(self.ADNs[ADN_2][i:])
+                        child2[i:] = copy.deepcopy(self.ADNs[ADN_1][i:])
+            self.ADNs.append(child1)
+            self.ADNs.append(child2)
+        self.sorted()
+        self.ADNs = self.ADNs[0:self.numADN]
+    
+    def Mutation(self):
+        self.sorted()
+        count = int(self.numADN / 2)
+        for i in range(count):
+            index_ADN = random.randint(self.numADN / 2, self.numADN - 1)
+            index_Gen = random.randint(int(self.lenADN / 2), self.lenADN - 1)
             self.ADNs[index_ADN][index_Gen:] = self.InitGen(self.ADNs[index_ADN][index_Gen], self.lenADN - index_Gen)
     
     def path(self, ADN: list):
         for i in ADN:
+            if i.parent_step == '- NONE':
+                continue
             print(i.parent_step + ': (' + str(i.cube_1.x) + ', ' + str(i.cube_1.y) + '), (' + str(i.cube_2.x) + ', ' + str(i.cube_2.y) + ')')
         print('\n--> GOAL: (' + str(ADN[len(ADN) - 1].cube_1.x) + ', ' + str(ADN[len(ADN) - 1].cube_1.y) + '), (' + str(ADN[len(ADN) - 1].cube_2.x) + ', ' + str(ADN[len(ADN) - 1].cube_2.y) + ')\n')
         
-    def Genetic(self,
-                init_block: Block,
-                goal_x: int,
-                goal_y: int,
-    ):
-        thres = abs(init_block.cube_1.x - goal_x) + abs(init_block.cube_1.y - goal_y) + abs(init_block.cube_2.x - goal_x) + abs(init_block.cube_2.y - goal_y) / 4
+    def Genetic(self, init_block: Block):
         count = 0
         self.InitialPopulation(init_block)
         while True:
             count += 1
-            print("Loop " + str(count))
             for i in self.ADNs:
-                if self.FitnessFunction(i, goal_x, goal_y) == 0:
+                if i[len(i) - 1].isGoal():
                     print("\nSUCCESS, FOLLOW THiS INSTRUCTION:")
                     self.path(i)
                     return
-            self.Selection(thres, goal_x, goal_y)
-            self.Crossover()
+                
+            self.sorted()
+            b = self.ADNs[0][self.lenADN - 1]
+            print("Loop " + str(count) + ": " + str(self.FitnessFunction(self.ADNs[0])) + " --> "
+                  + '(' + str(b.cube_1.x) + ', ' + str(b.cube_1.y) + '), (' + str(b.cube_2.x) + ', ' + str(b.cube_2.y) + ')')
+            
+            self.Crossover2()
             self.Mutation()    
     
 def readBoard(file):
@@ -556,7 +649,8 @@ if sys.argv[1:][1] == 'BFS':
     solver.bfs(init_block)
 elif sys.argv[1:][1] == 'Genetic':
     goal_x, goal_y = getGoal(board)
-    solver = GENETIC(items, 25, 1000)
-    solver.Genetic(init_block, goal_x, goal_y)
+    print("GOAL: (" + str(goal_x) + ", " + str(goal_y) + ")")
+    solver = GENETIC(items, board, goal_x, goal_y)
+    solver.Genetic(init_block)
 else:
     print('INVALID!!!')
