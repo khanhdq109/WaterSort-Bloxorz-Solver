@@ -472,23 +472,23 @@ class GENETIC:
         return
     
     def FitnessFunction(self, ADN: list):
-        result = 10000
+        result = 1000
         
         # Bonus score
         for block in ADN:
             # Check if the block is in orange tiles
             if not block.isStanding():
                 if self.board[block.cube_1.x][block.cube_1.y] == 5:
-                    result += 50
+                    result += 20
                     self.board[block.cube_1.x][block.cube_1.y] = 0
                 if self.board[block.cube_2.x][block.cube_2.y] == 5:
-                    result += 50
+                    result += 20
                     self.board[block.cube_2.x][block.cube_2.y] = 0
             
             # Check if the block is in X button
             if block.isStanding():
                 if self.board[block.cube_1.x][block.cube_1.y] == 3:
-                    result += 200
+                    result += 20
                     self.board[block.cube_1.x][block.cube_1.y] = 0
                     
             # Check if the block is in O button
@@ -497,7 +497,7 @@ class GENETIC:
                 self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_2.x][block.cube_2.y] == 6 or
                 self.board[block.cube_1.x][block.cube_1.y] == 7 or self.board[block.cube_2.x][block.cube_2.y] == 7
             ):
-                result += 200
+                result += 20
                 if self.board[block.cube_1.x][block.cube_1.y] == 4 or self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_1.x][block.cube_1.y] == 7:
                     self.board[block.cube_1.x][block.cube_1.y] = 0
                 else:
@@ -506,7 +506,7 @@ class GENETIC:
             # Check if the block is in Teleport gates
             if block.isStanding():
                 if self.board[block.cube_1.x][block.cube_1.y] == 8:
-                    result += 200
+                    result += 20
                     self.board[block.cube_1.x][block.cube_1.y] = 0
                     
             # Check if the tile is among orange tiles
@@ -518,32 +518,37 @@ class GENETIC:
                     self.board[block.cube_1.x][block.cube_1.y - 1] == 5 and
                     self.board[block.cube_1.x][block.cube_1.y + 1] == 5
                 ):
-                    result += 200
+                    result += 20
                     self.board[block.cube_1.x][block.cube_1.y] = 0
-            
-            """
-            # Check if the block is really near the goal
-            if (
-                block.cube_1.x == self.goal_x - 1 or block.cube_1.x == self.goal_x + 1 or
-                block.cube_1.y == self.goal_y - 1 or block.cube_1.y == self.goal_y + 1
-            ): 
-                result += 500
-            if (
-                block.cube_2.x == self.goal_x - 1 or block.cube_2.x == self.goal_x + 1 or
-                block.cube_2.y == self.goal_y - 1 or block.cube_2.y == self.goal_y + 1
-            ): 
-                result += 500
-            """
             
         # Main score
         last_block = ADN[self.lenADN - 1]
+        
+        # Check if the block is really near the goal
+        if not last_block.isStanding():
+            if (
+                (last_block.cube_1.x == self.goal_x - 1 and last_block.cube_2.x == self.goal_x - 2 and last_block.cube_1.y == self.goal_y and last_block.cube_2.y == self.goal_y) or
+                (last_block.cube_1.x == self.goal_x - 2 and last_block.cube_2.x == self.goal_x - 1 and last_block.cube_1.y == self.goal_y and last_block.cube_2.y == self.goal_y) or 
+                (last_block.cube_1.x == self.goal_x + 1 and last_block.cube_2.x == self.goal_x + 2 and last_block.cube_1.y == self.goal_y and last_block.cube_2.y == self.goal_y) or
+                (last_block.cube_1.x == self.goal_x + 2 and last_block.cube_2.x == self.goal_x + 1 and last_block.cube_1.y == self.goal_y and last_block.cube_2.y == self.goal_y) or
+                (last_block.cube_1.y == self.goal_y - 1 and last_block.cube_2.y == self.goal_y - 2 and last_block.cube_1.x == self.goal_x and last_block.cube_2.x == self.goal_x) or
+                (last_block.cube_1.y == self.goal_y - 2 and last_block.cube_2.y == self.goal_y - 1 and last_block.cube_1.x == self.goal_x and last_block.cube_2.x == self.goal_x) or  
+                (last_block.cube_1.y == self.goal_y + 1 and last_block.cube_2.y == self.goal_y + 2 and last_block.cube_1.x == self.goal_x and last_block.cube_2.x == self.goal_x) or
+                (last_block.cube_1.y == self.goal_y + 2 and last_block.cube_2.y == self.goal_y + 1 and last_block.cube_1.x == self.goal_x and last_block.cube_2.x == self.goal_x)
+            ): 
+                result += 100
+                
+        if last_block.isStanding():
+            if self.board[last_block.cube_1.x][last_block.cube_1.y] == 2:
+                result += 1000
+        
         distance = abs(last_block.cube_1.x - self.goal_x) + abs(last_block.cube_1.y - self.goal_y) + abs(last_block.cube_2.x - self.goal_x) + abs(last_block.cube_2.y - self.goal_y)
         result -= distance
         return result
     
     def sorted(self):
         self.ADNs.sort(key = self.FitnessFunction, reverse = True)
-    
+        
     def Crossover(self):
         self.sorted()
         count = int(self.numADN / 4)
@@ -587,16 +592,20 @@ class GENETIC:
         self.sorted()
         count = int(self.numADN / 2)
         for i in range(count):
-            index_ADN = random.randint(self.numADN / 2, self.numADN - 1)
+            index_ADN = random.randint(0, self.numADN - 1)
             index_Gen = random.randint(int(self.lenADN / 2), self.lenADN - 1)
             self.ADNs[index_ADN][index_Gen:] = self.InitGen(self.ADNs[index_ADN][index_Gen], self.lenADN - index_Gen)
     
     def path(self, ADN: list):
+        last = ADN[0]
         for i in ADN:
             if i.parent_step == '- NONE':
                 continue
             print(i.parent_step + ': (' + str(i.cube_1.x) + ', ' + str(i.cube_1.y) + '), (' + str(i.cube_2.x) + ', ' + str(i.cube_2.y) + ')')
-        print('\n--> GOAL: (' + str(ADN[len(ADN) - 1].cube_1.x) + ', ' + str(ADN[len(ADN) - 1].cube_1.y) + '), (' + str(ADN[len(ADN) - 1].cube_2.x) + ', ' + str(ADN[len(ADN) - 1].cube_2.y) + ')\n')
+            last = i
+            if i.isGoal():
+                break
+        print('\n--> GOAL: (' + str(last.cube_1.x) + ', ' + str(last.cube_1.y) + '), (' + str(last.cube_2.x) + ', ' + str(last.cube_2.y) + ')\n')
         
     def Genetic(self, init_block: Block):
         count = 0
