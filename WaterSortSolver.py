@@ -191,7 +191,6 @@ def aStar(s: State)->list:
     mp[s] = 1
     while not q.empty():
         temp = copy(q.pop())
-        a = 0
         for i in range (0, temp.lst.shape[0]):
             for j in range (i+1, temp.lst.shape[0]):
                 move1 = move(temp, i, j)
@@ -206,7 +205,6 @@ def aStar(s: State)->list:
                             move1 = move1.parent
                         res.reverse()
                         return res
-                a += 0.1
                 move2 = move(temp, j, i)
                 if move2.lst.size != 0 and move2 not in mp:
                     q.push(move2, f(move2))
@@ -219,7 +217,6 @@ def aStar(s: State)->list:
                             move2= move2.parent
                         res.reverse()
                         return res
-                a += 0.1
         cost += 1
     return []
 
