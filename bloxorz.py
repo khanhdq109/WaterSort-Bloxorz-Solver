@@ -11,7 +11,6 @@
 # 7: O - Only OFF (soft)
 # 8: Teleport and Split gate
 
-from re import A
 import sys
 import copy
 import time
@@ -27,15 +26,79 @@ def printBoard(board):
     for i in board:
         print(i)
     print('=' * col * 3)
+    
+def readBoard(file):
+    with open(file) as f:
+        # Read the first line to get shape of board, initialize coordinate of block
+        row, init_x, init_y = [int(x) for x in next(f).split()]
+        
+        # Read the board
+        board = []
+        count = 0
+        for line in f:
+            board.append([int(x) for x in line.split()])
+            count += 1
+            if count == row: 
+                break
+            
+        # Read the items
+        items = []
+        for line in f:
+            items.append([int(x) for x in line.split()])
+            
+    return board, items, init_x, init_y
+
+def fullBoard(board, items):
+    b = copy.deepcopy(board)
+    for i in items:
+        x, y = i[0], i[1]
+        b[i[2]][i[3]] = 1
+        if i[4] != - 1:
+            b[i[4]][i[5]] = 1
+        if len(i) > 6:
+            b[i[6]][i[7]] = 1
+            if i[8] != -1:
+                b[i[8]][i[9]] = 1
+    return b
 
 class Cube:
     def __init__(self, 
                  X: int, 
                  Y: int,
+                 prev: 'Cube' = None,
     ):
         self.x = copy.deepcopy(X)
         self.y = copy.deepcopy(Y) 
-           
+        self.prev = prev
+        
+    def up(self):
+        return self.x - 1, self.y
+    
+    def down(self):
+        return self.x + 1, self.y
+    
+    def right(self):
+        return self.x, self.y + 1
+    
+    def left(self):
+        return self.x, self.y - 1
+    
+    def visited(self, passed: list):
+        for i in passed:
+            if self.x == i.x and self.y == i.y:
+                return True
+        return False
+    
+    def Dead(self, board):
+        if board[self.x][self.y] == 0:
+            return True
+        return False
+    
+    def Goal(self, board):
+        if board[self.x][self.y] == 2:
+            return True
+        return False
+
 class Block:
     def __init__(self, 
                  cube_1: Cube,
@@ -265,6 +328,58 @@ class Block:
             return True
         return False
     
+def bfs_cube(init: Cube, board: list):
+    P = []
+    Q = []
+    Q.append(init)
+    P.append(init)
+    while len(Q) > 0:
+        current = Q.pop(0)
+        
+        if current.Goal(board):
+            return current
+        
+        x_up, y_up = current.up()
+        cube_1 = Cube(x_up, y_up, current)
+        if not cube_1.Dead(board):
+            if not cube_1.visited(P):
+                Q.append(cube_1)
+                P.append(cube_1)
+        
+        x_down, y_down = current.down()
+        cube_2 = Cube(x_down, y_down, current)
+        if not cube_2.Dead(board):
+            if not cube_2.visited(P):
+                Q.append(cube_2)
+                P.append(cube_2)
+                
+        x_right, y_right = current.right()
+        cube_3 = Cube(x_right, y_right, current)
+        if not cube_3.Dead(board):
+            if not cube_3.visited(P):
+                Q.append(cube_3)
+                P.append(cube_3)
+        
+        x_left, y_left = current.left()
+        cube_4 = Cube(x_left, y_left, current)
+        if not cube_4.Dead(board):
+            if not cube_4.visited(P):
+                Q.append(cube_4)
+                P.append(cube_4)
+    return None
+
+def dist(cube: Cube, board):
+    init = copy.deepcopy(cube)
+    init.prev = None
+    current = bfs_cube(init, board)
+    if current == None:
+        return -1
+    result = 0
+    while current != None:
+        result += 1
+        current = current.prev
+    return result
+    
 def equal_cube(cub_1: Cube, cub_2: Cube):
     if cub_1.x == cub_2.x and cub_1.y == cub_2.y:
         return True
@@ -337,7 +452,7 @@ class BFS:
         while len(queue) > 0:
             current = queue.pop(0)
             
-            if (current.isGoal()):
+            if current.isGoal():
                 print("\nSUCCESS, FOLLOW THiS INSTRUCTION:")
                 self.path(current)
                 return True
@@ -472,24 +587,24 @@ class GENETIC:
         return
     
     def FitnessFunction(self, ADN: list):
-        result = 1000
+        result = 5000
         
         # Bonus score
         for block in ADN:
             # Check if the block is in orange tiles
             if not block.isStanding():
                 if self.board[block.cube_1.x][block.cube_1.y] == 5:
-                    result += 100
-                    self.board[block.cube_1.x][block.cube_1.y] = 0
+                    result += 30
+                    self.board[block.cube_1.x][block.cube_1.y] = 9
                 if self.board[block.cube_2.x][block.cube_2.y] == 5:
-                    result += 100
-                    self.board[block.cube_2.x][block.cube_2.y] = 0
+                    result += 30
+                    self.board[block.cube_2.x][block.cube_2.y] = 9
             
             # Check if the block is in X button
             if block.isStanding():
                 if self.board[block.cube_1.x][block.cube_1.y] == 3:
                     result += 100
-                    self.board[block.cube_1.x][block.cube_1.y] = 0
+                    self.board[block.cube_1.x][block.cube_1.y] = 9
                     
             # Check if the block is in O button
             if (
@@ -499,15 +614,15 @@ class GENETIC:
             ):
                 result += 100
                 if self.board[block.cube_1.x][block.cube_1.y] == 4 or self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_1.x][block.cube_1.y] == 7:
-                    self.board[block.cube_1.x][block.cube_1.y] = 0
+                    self.board[block.cube_1.x][block.cube_1.y] = 9
                 else:
-                    self.board[block.cube_2.x][block.cube_2.y] = 0
+                    self.board[block.cube_2.x][block.cube_2.y] = 9
                     
             # Check if the block is in Teleport gates
             if block.isStanding():
                 if self.board[block.cube_1.x][block.cube_1.y] == 8:
                     result += 100
-                    self.board[block.cube_1.x][block.cube_1.y] = 0
+                    self.board[block.cube_1.x][block.cube_1.y] = 9
                     
             # Check if the tile is among orange tiles
             if block.isStanding():
@@ -519,7 +634,7 @@ class GENETIC:
                     self.board[block.cube_1.x][block.cube_1.y + 1] == 5
                 ):
                     result += 100
-                    self.board[block.cube_1.x][block.cube_1.y] = 0
+                    self.board[block.cube_1.x][block.cube_1.y] = 9
             
         # Main score
         second_last = ADN[self.lenADN - 2]
@@ -541,9 +656,9 @@ class GENETIC:
         last_block = ADN[self.lenADN - 1]
         if last_block.isStanding():
             if self.board[last_block.cube_1.x][last_block.cube_1.y] == 2:
-                result += 10000
+                result += 100000
         
-        distance = abs(last_block.cube_1.x - self.goal_x) + abs(last_block.cube_1.y - self.goal_y) + abs(last_block.cube_2.x - self.goal_x) + abs(last_block.cube_2.y - self.goal_y)
+        distance = dist(last_block.cube_1, self.board) + dist(last_block.cube_2, self.board) # !!!
         result -= distance
         return result
     
@@ -622,32 +737,11 @@ class GENETIC:
                 
             self.sorted()
             b = self.ADNs[0][len(self.ADNs[0]) - 1]
-            print("Loop " + str(count) + ": " + str(self.FitnessFunction(self.ADNs[0])) + " --> "
+            print("Loop " + str(count) + ": " + str(self.FitnessFunction2(self.ADNs[0])) + " --> "
                   + '(' + str(b.cube_1.x) + ', ' + str(b.cube_1.y) + '), (' + str(b.cube_2.x) + ', ' + str(b.cube_2.y) + ')')
             
             self.Crossover()
-            self.Mutation()    
-    
-def readBoard(file):
-    with open(file) as f:
-        # Read the first line to get shape of board, initialize coordinate of block
-        row, init_x, init_y = [int(x) for x in next(f).split()]
-        
-        # Read the board
-        board = []
-        count = 0
-        for line in f:
-            board.append([int(x) for x in line.split()])
-            count += 1
-            if count == row: 
-                break
-            
-        # Read the items
-        items = []
-        for line in f:
-            items.append([int(x) for x in line.split()])
-            
-    return board, items, init_x, init_y
+            self.Mutation()
 
 board, items, init_x, init_y = readBoard('Stage\Stage_' + str(sys.argv[1:][0]) + '.txt')
 printBoard(board)
@@ -655,14 +749,16 @@ printBoard(board)
 cube = Cube(init_x, init_y)
 init_block = Block(cube_1 = cube, cube_2 = cube, board = board)
 
+goal_x, goal_y = getGoal(board)
+print("GOAL: (" + str(goal_x) + ", " + str(goal_y) + ")")
+
 if sys.argv[1:][1] == 'BFS':
     solver = BFS(items)
     solver.bfs(init_block)
     
 elif sys.argv[1:][1] == 'Genetic' or sys.argv[1:][1] == 'genetic':
-    goal_x, goal_y = getGoal(board)
-    print("GOAL: (" + str(goal_x) + ", " + str(goal_y) + ")")
-    solver = GENETIC(items, board, goal_x, goal_y)
+    full = fullBoard(board, items)
+    solver = GENETIC(items, full, goal_x, goal_y)
     solver.Genetic(init_block)
     
 else:
