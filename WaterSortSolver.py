@@ -272,12 +272,21 @@ def instruction(lst: list)->list:
     return res
 
 def getInstuc():
-    for i in range(1,11):
+    for i in range(1,21):
         filename = 'map/lv' + str(i) + '.txt'
-        out = 'output/lv' + str(i) + '.txt'
+        out = 'output/aStar/lv' + str(i) + '.txt'
         outf = open(out, 'w+')
         arr = readmap(filename)
         res = aStar(State(arr))
+        instruct = instruction(res)
+        for i in range(0, len(instruct)):
+            outf.write("Step " + str(i + 1) + ":" + str(instruct[i][0] + 1) + "->" + str(instruct[i][1] + 1) + '\n')
+    for i in range(1,21):
+        filename = 'map/lv' + str(i) + '.txt'
+        out = 'output/dfs/lv' + str(i) + '.txt'
+        outf = open(out, 'w+')
+        arr = readmap(filename)
+        res = dfs(State(arr))
         instruct = instruction(res)
         for i in range(0, len(instruct)):
             outf.write("Step " + str(i + 1) + ":" + str(instruct[i][0] + 1) + "->" + str(instruct[i][1] + 1) + '\n')

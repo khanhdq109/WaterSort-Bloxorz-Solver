@@ -1,0 +1,8 @@
+yellow gray blue yellow
+pink blue red green
+blue pink green blue
+yellow red gray orange
+green orange yellow green
+red pink orange red
+orange pink gray gray
+
