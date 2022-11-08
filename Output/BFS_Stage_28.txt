@@ -117,5 +117,5 @@ BOARD:
 - CUBE 2 LEFT: (10, 4), (9, 4)
 - UP: (8, 4), (8, 4)
 --> GOAL: (8, 4), (8, 4)
-Time: 20.623 s
-Memory: 45.18 MB
+Time: 23.8543 s
+Memory: 45.89 MB

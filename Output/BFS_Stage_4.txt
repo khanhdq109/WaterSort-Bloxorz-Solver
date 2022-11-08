@@ -44,5 +44,5 @@ BOARD:
 - LEFT: (8, 8), (7, 8)
 - DOWN: (9, 8), (9, 8)
 --> GOAL: (9, 8), (9, 8)
-Time: 0.0325 s
-Memory: 30.07 MB
+Time: 0.0591 s
+Memory: 30.25 MB

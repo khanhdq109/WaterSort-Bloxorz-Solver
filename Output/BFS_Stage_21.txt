@@ -88,5 +88,5 @@ BOARD:
 - RIGHT: (7, 13), (7, 14)
 - RIGHT: (7, 15), (7, 15)
 --> GOAL: (7, 15), (7, 15)
-Time: 0.1204 s
-Memory: 30.86 MB
+Time: 0.2215 s
+Memory: 30.94 MB

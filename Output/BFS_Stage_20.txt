@@ -73,5 +73,5 @@ BOARD:
 - RIGHT: (8, 15), (9, 15)
 - DOWN: (10, 15), (10, 15)
 --> GOAL: (10, 15), (10, 15)
-Time: 29.504 s
-Memory: 48.67 MB
+Time: 28.2868 s
+Memory: 48.63 MB

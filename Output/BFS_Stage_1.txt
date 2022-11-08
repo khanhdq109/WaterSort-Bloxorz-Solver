@@ -20,5 +20,5 @@ BOARD:
 - DOWN: (6, 7), (6, 8)
 - RIGHT: (6, 9), (6, 9)
 --> GOAL: (6, 9), (6, 9)
-Time: 0.0229 s
-Memory: 30.08 MB
+Time: 0.0464 s
+Memory: 30.1 MB

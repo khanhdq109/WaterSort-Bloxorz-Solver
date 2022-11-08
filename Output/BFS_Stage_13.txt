@@ -63,5 +63,5 @@ BOARD:
 - UP: (8, 9), (7, 9)
 - UP: (6, 9), (6, 9)
 --> GOAL: (6, 9), (6, 9)
-Time: 0.0634 s
-Memory: 30.39 MB
+Time: 0.1184 s
+Memory: 30.42 MB
