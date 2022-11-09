@@ -250,7 +250,7 @@ class Block:
                 return
     
     # BUTTON 4: O - ON and OFF (soft)
-    def button4(self, items: list):
+    def button4(self, items: list, end = False):
         if self.board[self.cube_1.x][self.cube_1.y] != 4 and self.board[self.cube_2.x][self.cube_2.y] != 4:
             return
         
@@ -287,58 +287,61 @@ class Block:
                             self.board[i[8]][i[9]] = 0
                 break
             
-        two_button = False
-        duplicate = False
+        if end: return
         
-        if save == 1 and (self.board[self.cube_2.x][self.cube_2.y] == 4 or 
-                          self.board[self.cube_2.x][self.cube_2.y] == 6 or 
-                          self.board[self.cube_2.x][self.cube_2.y] == 7 or
-                          self.board[self.cube_2.x][self.cube_2.y] == 11):
-            X = self.cube_2.x
-            Y = self.cube_2.y
-            two_button = True
-            if self.board[self.cube_2.x][self.cube_2.y] == 4:
-                duplicate = True
-        elif save == 2 and (self.board[self.cube_1.x][self.cube_1.y] == 4 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 6 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 7 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 11):
-            X = self.cube_1.x
-            Y = self.cube_1.y
-            two_button = True
-            if self.board[self.cube_1.x][self.cube_1.y] == 4:
-                duplicate = True
+        if not self.isStanding():
+            two_button = False
+            duplicate = False
             
-        if two_button:
-            if duplicate:
-                for i in items:
-                    if i[0] == X and i[1] == Y:
-                        if i[2] == -1: 
+            if save == 1 and (self.board[self.cube_2.x][self.cube_2.y] == 4 or 
+                              self.board[self.cube_2.x][self.cube_2.y] == 6 or 
+                              self.board[self.cube_2.x][self.cube_2.y] == 7 or
+                              self.board[self.cube_2.x][self.cube_2.y] == 11):
+                X = self.cube_2.x
+                Y = self.cube_2.y
+                two_button = True
+                if self.board[self.cube_2.x][self.cube_2.y] == 4:
+                    duplicate = True
+            elif save == 2 and (self.board[self.cube_1.x][self.cube_1.y] == 4 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 6 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 7 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 11):
+                X = self.cube_1.x
+                Y = self.cube_1.y
+                two_button = True
+                if self.board[self.cube_1.x][self.cube_1.y] == 4:
+                    duplicate = True
+                
+            if two_button:
+                if duplicate:
+                    for i in items:
+                        if i[0] == X and i[1] == Y:
+                            if i[2] == -1: 
+                                return
+                            self.board[i[2]][i[3]] = 0
+                            if i[4] != -1:
+                                self.board[i[4]][i[5]] = 0
+                            if len(i) > 6:
+                                self.board[i[6]][i[7]] = 0
+                                if i[8] != -1:
+                                    self.board[i[8]][i[9]] = 0
+                            if len(i) > 10:
+                                self.board[i[10]][i[11]] = 0
+                                if i[12] != -1:
+                                    self.board[i[12]][i[13]] = 0
+                            if len(i) > 14:
+                                self.board[i[14]][i[15]] = 0
+                                if i[16] != -1:
+                                    self.board[i[16]][i[17]] = 0
                             return
-                        self.board[i[2]][i[3]] = 0
-                        if i[4] != -1:
-                            self.board[i[4]][i[5]] = 0
-                        if len(i) > 6:
-                            self.board[i[6]][i[7]] = 0
-                            if i[8] != -1:
-                                self.board[i[8]][i[9]] = 0
-                        if len(i) > 10:
-                            self.board[i[10]][i[11]] = 0
-                            if i[12] != -1:
-                                self.board[i[12]][i[13]] = 0
-                        if len(i) > 14:
-                            self.board[i[14]][i[15]] = 0
-                            if i[16] != -1:
-                                self.board[i[16]][i[17]] = 0
-                        return
-            else:
-                self.button6(items)
-                self.button7(items)
-                self.button11(items)
-                return
+                else:
+                    self.button6(items, True)
+                    self.button7(items, True)
+                    self.button11(items, True)
+                    return
             
     # BUTTON 6: O - Only ON (soft)
-    def button6(self, items: list):
+    def button6(self, items: list, end = False):
         if self.board[self.cube_1.x][self.cube_1.y] != 6 and self.board[self.cube_2.x][self.cube_2.y] != 6:
             return
 
@@ -364,59 +367,62 @@ class Block:
                     if i[8] != -1: # Sometimes we just erase one tile
                         self.board[i[8]][i[9]] = 1
                 break
-            
-        two_button = False
-        duplicate = False
         
-        if save == 1 and (self.board[self.cube_2.x][self.cube_2.y] == 4 or 
-                          self.board[self.cube_2.x][self.cube_2.y] == 6 or 
-                          self.board[self.cube_2.x][self.cube_2.y] == 7 or
-                          self.board[self.cube_2.x][self.cube_2.y] == 11):
-            X = self.cube_2.x
-            Y = self.cube_2.y
-            two_button = True
-            if self.board[self.cube_2.x][self.cube_2.y] == 6:
-                duplicate = True
-        elif save == 2 and (self.board[self.cube_1.x][self.cube_1.y] == 4 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 6 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 7 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 11):
-            X = self.cube_1.x
-            Y = self.cube_1.y
-            two_button = True
-            if self.board[self.cube_1.x][self.cube_1.y] == 6:
-                duplicate = True
+        if end: return
+        
+        if not self.isStanding():
+            two_button = False
+            duplicate = False
             
-        if two_button:
-            if duplicate:
-                for i in items:
-                    if i[0] == X and i[1] == Y:
-                        if i[2] == -1: 
+            if save == 1 and (self.board[self.cube_2.x][self.cube_2.y] == 4 or 
+                            self.board[self.cube_2.x][self.cube_2.y] == 6 or 
+                            self.board[self.cube_2.x][self.cube_2.y] == 7 or
+                            self.board[self.cube_2.x][self.cube_2.y] == 11):
+                X = self.cube_2.x
+                Y = self.cube_2.y
+                two_button = True
+                if self.board[self.cube_2.x][self.cube_2.y] == 6:
+                    duplicate = True
+            elif save == 2 and (self.board[self.cube_1.x][self.cube_1.y] == 4 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 6 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 7 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 11):
+                X = self.cube_1.x
+                Y = self.cube_1.y
+                two_button = True
+                if self.board[self.cube_1.x][self.cube_1.y] == 6:
+                    duplicate = True
+                
+            if two_button:
+                if duplicate:
+                    for i in items:
+                        if i[0] == X and i[1] == Y:
+                            if i[2] == -1: 
+                                return
+                            self.board[i[2]][i[3]] = 0
+                            if i[4] != -1:
+                                self.board[i[4]][i[5]] = 0
+                            if len(i) > 6:
+                                self.board[i[6]][i[7]] = 0
+                                if i[8] != -1:
+                                    self.board[i[8]][i[9]] = 0
+                            if len(i) > 10:
+                                self.board[i[10]][i[11]] = 0
+                                if i[12] != -1:
+                                    self.board[i[12]][i[13]] = 0
+                            if len(i) > 14:
+                                self.board[i[14]][i[15]] = 0
+                                if i[16] != -1:
+                                    self.board[i[16]][i[17]] = 0
                             return
-                        self.board[i[2]][i[3]] = 0
-                        if i[4] != -1:
-                            self.board[i[4]][i[5]] = 0
-                        if len(i) > 6:
-                            self.board[i[6]][i[7]] = 0
-                            if i[8] != -1:
-                                self.board[i[8]][i[9]] = 0
-                        if len(i) > 10:
-                            self.board[i[10]][i[11]] = 0
-                            if i[12] != -1:
-                                self.board[i[12]][i[13]] = 0
-                        if len(i) > 14:
-                            self.board[i[14]][i[15]] = 0
-                            if i[16] != -1:
-                                self.board[i[16]][i[17]] = 0
-                        return
-            else:
-                self.button4(items)
-                self.button7(items)
-                self.button11(items)
-                return
+                else:
+                    self.button4(items, True)
+                    self.button7(items, True)
+                    self.button11(items, True)
+                    return
     
     # BUTTON 7: O - Only OFF (soft)
-    def button7(self, items: list):
+    def button7(self, items: list, end = False):
         if self.board[self.cube_1.x][self.cube_1.y] != 7 and self.board[self.cube_2.x][self.cube_2.y] != 7:
             return
 
@@ -451,57 +457,59 @@ class Block:
                         self.board[i[16]][i[17]] = 0
                 break
         
-        two_button = False
-        duplicate = False
+        if end: return
         
-        if save == 1 and (self.board[self.cube_2.x][self.cube_2.y] == 4 or 
-                          self.board[self.cube_2.x][self.cube_2.y] == 6 or 
-                          self.board[self.cube_2.x][self.cube_2.y] == 7 or
-                          self.board[self.cube_2.x][self.cube_2.y] == 11):
-            X = self.cube_2.x
-            Y = self.cube_2.y
-            two_button = True
-            if self.board[self.cube_2.x][self.cube_2.y] == 7:
-                duplicate = True
-        elif save == 2 and (self.board[self.cube_1.x][self.cube_1.y] == 4 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 6 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 7 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 11):
-            X = self.cube_1.x
-            Y = self.cube_1.y
-            two_button = True
-            if self.board[self.cube_1.x][self.cube_1.y] == 7:
-                duplicate = True
+        if not self.isStanding():
+            two_button = False
+            duplicate = False
             
-        if two_button:
-            if duplicate:
-                for i in items:
-                    if i[0] == X and i[1] == Y:
-                        if i[2] == -1: 
+            if save == 1 and (self.board[self.cube_2.x][self.cube_2.y] == 4 or 
+                            self.board[self.cube_2.x][self.cube_2.y] == 6 or 
+                            self.board[self.cube_2.x][self.cube_2.y] == 7 or
+                            self.board[self.cube_2.x][self.cube_2.y] == 11):
+                X = self.cube_2.x
+                Y = self.cube_2.y
+                two_button = True
+                if self.board[self.cube_2.x][self.cube_2.y] == 7:
+                    duplicate = True
+            elif save == 2 and (self.board[self.cube_1.x][self.cube_1.y] == 4 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 6 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 7 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 11):
+                X = self.cube_1.x
+                Y = self.cube_1.y
+                two_button = True
+                if self.board[self.cube_1.x][self.cube_1.y] == 7:
+                    duplicate = True
+                
+            if two_button:
+                if duplicate:
+                    for i in items:
+                        if i[0] == X and i[1] == Y:
+                            if i[2] == -1: 
+                                return
+                            self.board[i[2]][i[3]] = 0
+                            if i[4] != -1:
+                                self.board[i[4]][i[5]] = 0
+                            if len(i) > 6:
+                                self.board[i[6]][i[7]] = 0
+                                if i[8] != -1:
+                                    self.board[i[8]][i[9]] = 0
+                            if len(i) > 10:
+                                self.board[i[10]][i[11]] = 0
+                                if i[12] != -1:
+                                    self.board[i[12]][i[13]] = 0
+                            if len(i) > 14:
+                                self.board[i[14]][i[15]] = 0
+                                if i[16] != -1:
+                                    self.board[i[16]][i[17]] = 0
                             return
-                        self.board[i[2]][i[3]] = 0
-                        if i[4] != -1:
-                            self.board[i[4]][i[5]] = 0
-                        if len(i) > 6:
-                            self.board[i[6]][i[7]] = 0
-                            if i[8] != -1:
-                                self.board[i[8]][i[9]] = 0
-                        if len(i) > 10:
-                            self.board[i[10]][i[11]] = 0
-                            if i[12] != -1:
-                                self.board[i[12]][i[13]] = 0
-                        if len(i) > 14:
-                            self.board[i[14]][i[15]] = 0
-                            if i[16] != -1:
-                                self.board[i[16]][i[17]] = 0
-                        return
-            else:
-                self.button4(items)
-                self.button6(items)
-                self.button11(items)
-                return
+                else:
+                    self.button4(items, True)
+                    self.button6(items, True)
+                    self.button11(items, True)
+                    return
         
-            
     # BUTTON 8: Teleport and Split gate
     def button8(self, items: list):  
         if self.split or self.board[self.cube_1.x][self.cube_1.y] != 8 or self.board[self.cube_2.x][self.cube_2.y] != 8:
@@ -578,7 +586,7 @@ class Block:
                 return
             
     # BUTTON 11: O - ON a bridge and OFF a bridge (soft)
-    def button11(self, items: list):
+    def button11(self, items: list, end = False):
         if self.board[self.cube_1.x][self.cube_1.y] != 11 and self.board[self.cube_2.x][self.cube_2.y] != 11:
             return
 
@@ -612,55 +620,58 @@ class Block:
                         self.board[i[16]][i[17]] = 0
                 break
             
-        two_button = False
-        duplicate = False
+        if end: return
         
-        if save == 1 and (self.board[self.cube_2.x][self.cube_2.y] == 4 or 
-                          self.board[self.cube_2.x][self.cube_2.y] == 6 or 
-                          self.board[self.cube_2.x][self.cube_2.y] == 7 or
-                          self.board[self.cube_2.x][self.cube_2.y] == 11):
-            X = self.cube_2.x
-            Y = self.cube_2.y
-            two_button = True
-            if self.board[self.cube_2.x][self.cube_2.y] == 11:
-                duplicate = True
-        elif save == 2 and (self.board[self.cube_1.x][self.cube_1.y] == 4 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 6 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 7 or
-                            self.board[self.cube_1.x][self.cube_1.y] == 11):
-            X = self.cube_1.x
-            Y = self.cube_1.y
-            two_button = True
-            if self.board[self.cube_1.x][self.cube_1.y] == 11:
-                duplicate = True
+        if not self.isStanding():
+            two_button = False
+            duplicate = False
             
-        if two_button:
-            if duplicate:
-                for i in items:
-                    if i[0] == X and i[1] == Y:
-                        if i[2] == -1: 
+            if save == 1 and (self.board[self.cube_2.x][self.cube_2.y] == 4 or 
+                            self.board[self.cube_2.x][self.cube_2.y] == 6 or 
+                            self.board[self.cube_2.x][self.cube_2.y] == 7 or
+                            self.board[self.cube_2.x][self.cube_2.y] == 11):
+                X = self.cube_2.x
+                Y = self.cube_2.y
+                two_button = True
+                if self.board[self.cube_2.x][self.cube_2.y] == 11:
+                    duplicate = True
+            elif save == 2 and (self.board[self.cube_1.x][self.cube_1.y] == 4 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 6 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 7 or
+                                self.board[self.cube_1.x][self.cube_1.y] == 11):
+                X = self.cube_1.x
+                Y = self.cube_1.y
+                two_button = True
+                if self.board[self.cube_1.x][self.cube_1.y] == 11:
+                    duplicate = True
+                
+            if two_button:
+                if duplicate:
+                    for i in items:
+                        if i[0] == X and i[1] == Y:
+                            if i[2] == -1: 
+                                return
+                            self.board[i[2]][i[3]] = 0
+                            if i[4] != -1:
+                                self.board[i[4]][i[5]] = 0
+                            if len(i) > 6:
+                                self.board[i[6]][i[7]] = 0
+                                if i[8] != -1:
+                                    self.board[i[8]][i[9]] = 0
+                            if len(i) > 10:
+                                self.board[i[10]][i[11]] = 0
+                                if i[12] != -1:
+                                    self.board[i[12]][i[13]] = 0
+                            if len(i) > 14:
+                                self.board[i[14]][i[15]] = 0
+                                if i[16] != -1:
+                                    self.board[i[16]][i[17]] = 0
                             return
-                        self.board[i[2]][i[3]] = 0
-                        if i[4] != -1:
-                            self.board[i[4]][i[5]] = 0
-                        if len(i) > 6:
-                            self.board[i[6]][i[7]] = 0
-                            if i[8] != -1:
-                                self.board[i[8]][i[9]] = 0
-                        if len(i) > 10:
-                            self.board[i[10]][i[11]] = 0
-                            if i[12] != -1:
-                                self.board[i[12]][i[13]] = 0
-                        if len(i) > 14:
-                            self.board[i[14]][i[15]] = 0
-                            if i[16] != -1:
-                                self.board[i[16]][i[17]] = 0
-                        return
-            else:
-                self.button4(items)
-                self.button6(items)
-                self.button7(items)
-                return
+                else:
+                    self.button4(items, True)
+                    self.button6(items, True)
+                    self.button7(items, True)
+                    return
     
     # BUTTON 12: X - ON a bridge and OFF a bridge (heavy)
     def button12(self, items: list):
@@ -677,22 +688,30 @@ class Block:
             
         for i in items:
             if i[0] == X and i[1] == Y:
-                if i[2] == -1: 
-                    return
-                self.board[i[2]][i[3]] = 1
-                if i[4] != -1:
+                # whatever, this is a special case for Stage 31
+                if i[len(i) - 1] == -2:
+                    self.board[i[2]][i[3]] = 1
                     self.board[i[4]][i[5]] = 1
-                self.board[i[6]][i[7]] = 0
-                if i[8] != -1:
+                    self.board[i[6]][i[7]] = 1
                     self.board[i[8]][i[9]] = 0
-                if len(i) > 10:
                     self.board[i[10]][i[11]] = 0
-                    if i[12] != -1:
-                        self.board[i[12]][i[13]] = 0
-                if len(i) > 14:
-                    self.board[i[14]][i[15]] = 0
-                    if i[16] != -1:
-                        self.board[i[16]][i[17]] = 0
+                else: 
+                    if i[2] == -1: 
+                        return
+                    self.board[i[2]][i[3]] = 1
+                    if i[4] != -1:
+                        self.board[i[4]][i[5]] = 1
+                    self.board[i[6]][i[7]] = 0
+                    if i[8] != -1:
+                        self.board[i[8]][i[9]] = 0
+                    if len(i) > 10:
+                        self.board[i[10]][i[11]] = 0
+                        if i[12] != -1:
+                            self.board[i[12]][i[13]] = 0
+                    if len(i) > 14:
+                        self.board[i[14]][i[15]] = 0
+                        if i[16] != -1:
+                            self.board[i[16]][i[17]] = 0
                 return
     
     # Combine 2 cubes into 1 block
@@ -760,7 +779,7 @@ def dist(cube: Cube, board):
     init.prev = None
     current = bfs_cube(init, board)
     if current == None:
-        return -1
+        return 500
     result = 0
     while current != None:
         result += 1
@@ -1023,35 +1042,44 @@ class GENETIC:
             # Check if the block is in orange tiles
             if not block.isStanding():
                 if self.board[block.cube_1.x][block.cube_1.y] == 5:
-                    result += 30
-                    self.board[block.cube_1.x][block.cube_1.y] = 9
+                    result += 5
+                    self.board[block.cube_1.x][block.cube_1.y] = 20
                 if self.board[block.cube_2.x][block.cube_2.y] == 5:
-                    result += 30
-                    self.board[block.cube_2.x][block.cube_2.y] = 9
+                    result += 5
+                    self.board[block.cube_2.x][block.cube_2.y] = 20
             
             # Check if the block is in X button
             if block.isStanding():
-                if self.board[block.cube_1.x][block.cube_1.y] == 3:
+                if self.board[block.cube_1.x][block.cube_1.y] == 3 or self.board[block.cube_1.x][block.cube_1.y] == 10:
                     result += 100
-                    self.board[block.cube_1.x][block.cube_1.y] = 9
+                    self.board[block.cube_1.x][block.cube_1.y] = 20
+                elif self.board[block.cube_1.x][block.cube_1.y] == 9:
+                    result -= 300
+                    self.board[block.cube_1.x][block.cube_1.y] == 20
                     
             # Check if the block is in O button
             if (
                 self.board[block.cube_1.x][block.cube_1.y] == 4 or self.board[block.cube_2.x][block.cube_2.y] == 4 or
                 self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_2.x][block.cube_2.y] == 6 or
-                self.board[block.cube_1.x][block.cube_1.y] == 7 or self.board[block.cube_2.x][block.cube_2.y] == 7
+                self.board[block.cube_1.x][block.cube_1.y] == 11 or self.board[block.cube_2.x][block.cube_2.y] == 11
             ):
                 result += 100
-                if self.board[block.cube_1.x][block.cube_1.y] == 4 or self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_1.x][block.cube_1.y] == 7:
-                    self.board[block.cube_1.x][block.cube_1.y] = 9
+                if self.board[block.cube_1.x][block.cube_1.y] == 4 or self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_1.x][block.cube_1.y] == 11:
+                    self.board[block.cube_1.x][block.cube_1.y] = 20
                 else:
-                    self.board[block.cube_2.x][block.cube_2.y] = 9
+                    self.board[block.cube_2.x][block.cube_2.y] = 20
+            elif self.board[block.cube_1.x][block.cube_1.y] == 7 or self.board[block.cube_2.x][block.cube_2.y] == 7:
+                result -= 300
+                if self.board[block.cube_1.x][block.cube_1.y] == 7:
+                    self.board[block.cube_1.x][block.cube_1.y] = 20
+                else:
+                    self.board[block.cube_2.x][block.cube_2.y] = 20
                     
             # Check if the block is in Teleport gates
             if block.isStanding():
                 if self.board[block.cube_1.x][block.cube_1.y] == 8:
-                    result += 100
-                    self.board[block.cube_1.x][block.cube_1.y] = 9
+                    result += 150
+                    self.board[block.cube_1.x][block.cube_1.y] = 20
                     
             # Check if the tile is among orange tiles
             if block.isStanding():
@@ -1062,13 +1090,13 @@ class GENETIC:
                     self.board[block.cube_1.x][block.cube_1.y - 1] == 5 and
                     self.board[block.cube_1.x][block.cube_1.y + 1] == 5
                 ):
-                    result += 100
-                    self.board[block.cube_1.x][block.cube_1.y] = 9
-            
-        # Main score
-        second_last = ADN[self.lenADN - 2]
+                    result += 50
+                    self.board[block.cube_1.x][block.cube_1.y] = 20
+                    
+            # Check if the block is in the way connect 2 parts of map
         
         # Check if the block is really near the goal
+        second_last = ADN[self.lenADN - 2]
         if not second_last.isStanding():
             if (
                 (second_last.cube_1.x == self.goal_x - 1 and second_last.cube_2.x == self.goal_x - 2 and second_last.cube_1.y == self.goal_y and second_last.cube_2.y == self.goal_y) or
@@ -1080,14 +1108,22 @@ class GENETIC:
                 (second_last.cube_1.y == self.goal_y + 1 and second_last.cube_2.y == self.goal_y + 2 and second_last.cube_1.x == self.goal_x and second_last.cube_2.x == self.goal_x) or
                 (second_last.cube_1.y == self.goal_y + 2 and second_last.cube_2.y == self.goal_y + 1 and second_last.cube_1.x == self.goal_x and second_last.cube_2.x == self.goal_x)
             ): 
-                result += 200
+                result += 5000
         
+        # Main score
         last_block = ADN[self.lenADN - 1]
         if last_block.isStanding():
             if self.board[last_block.cube_1.x][last_block.cube_1.y] == 2:
                 result += 100000
         
-        distance = dist(last_block.cube_1, self.board) + dist(last_block.cube_2, self.board) # !!!
+        a, b = dist(last_block.cube_1, self.board), dist(last_block.cube_2, self.board)
+        
+        # print(str(a) + ', ' + str(b))
+        
+        if (a == 1 or b == 1) or (a == 0 or b == 0) or (a == 2 and b == 2):
+            result -= 5
+        
+        distance = a + b
         result -= distance
         return result
             
@@ -1117,7 +1153,7 @@ class GENETIC:
         self.sorted()
         count = int(self.numADN / 2)
         for i in range(count):
-            index_ADN = random.randint(0, self.numADN - 1)
+            index_ADN = random.randint(int(self.numADN / 2), self.numADN - 1)
             index_Gen = random.randint(int(self.lenADN / 2), self.lenADN - 1)
             self.ADNs[index_ADN][index_Gen:] = self.InitGen(self.ADNs[index_ADN][index_Gen], self.lenADN - index_Gen)
     
@@ -1141,10 +1177,11 @@ class GENETIC:
                     self.path(i)
                     return
                 
-            # self.sorted()
-            # b = self.ADNs[0][len(self.ADNs[0]) - 1]
-            # print("Loop " + str(count) + ": " + str(self.FitnessFunction(self.ADNs[0])) + " --> "
-                  # + '(' + str(b.cube_1.x) + ', ' + str(b.cube_1.y) + '), (' + str(b.cube_2.x) + ', ' + str(b.cube_2.y) + ')')
+            self.sorted()
+            b = self.ADNs[0][len(self.ADNs[0]) - 1]
+            print("Loop " + str(count) + ": " + str(self.FitnessFunction(self.ADNs[0])) + " --> "
+                  + '(' + str(b.cube_1.x) + ', ' + str(b.cube_1.y) + '), (' + str(b.cube_2.x) + ', ' + str(b.cube_2.y) + ')')
+            # print(str(dist(b.cube_1, self.board)) + ', ' + str(dist(b.cube_2, self.board)))
             
             self.Crossover()
             self.Mutation()
