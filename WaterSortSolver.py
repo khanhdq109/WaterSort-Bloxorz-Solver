@@ -34,9 +34,6 @@ class State:
         else:
             return self.lst == other.lst
     
-    def __lt__(self, other)->bool:
-        return random.randint(0,1)
-    
     def __eq__(self, other) -> bool:
         return np.array_equal(self.lst, other.lst)
     
