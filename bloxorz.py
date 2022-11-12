@@ -934,7 +934,7 @@ class GENETIC:
     def __init__(self,
                  items: list,
                  board: list,
-                 lenADN: int = 50,
+                 lenADN: int = 60,
                  numADN: int = 200,
     ):
         self.items, self.board = items, board
@@ -1037,63 +1037,75 @@ class GENETIC:
     def FitnessFunction(self, ADN: list):
         result = 5000
         
+        temp = copy.deepcopy(self.board)
+        
         # Bonus score
         for block in ADN:
             # Check if the block is in orange tiles
             if not block.isStanding():
-                if self.board[block.cube_1.x][block.cube_1.y] == 5:
+                if temp[block.cube_1.x][block.cube_1.y] == 5:
                     result += 5
-                    self.board[block.cube_1.x][block.cube_1.y] = 20
-                if self.board[block.cube_2.x][block.cube_2.y] == 5:
+                    temp[block.cube_1.x][block.cube_1.y] = 20
+                if temp[block.cube_2.x][block.cube_2.y] == 5:
                     result += 5
-                    self.board[block.cube_2.x][block.cube_2.y] = 20
+                    temp[block.cube_2.x][block.cube_2.y] = 20
             
             # Check if the block is in X button
             if block.isStanding():
-                if self.board[block.cube_1.x][block.cube_1.y] == 3 or self.board[block.cube_1.x][block.cube_1.y] == 10:
+                if temp[block.cube_1.x][block.cube_1.y] == 3 or temp[block.cube_1.x][block.cube_1.y] == 10:
                     result += 100
-                    self.board[block.cube_1.x][block.cube_1.y] = 20
-                elif self.board[block.cube_1.x][block.cube_1.y] == 9:
-                    result -= 300
-                    self.board[block.cube_1.x][block.cube_1.y] == 20
+                    temp[block.cube_1.x][block.cube_1.y] = 20
+                elif temp[block.cube_1.x][block.cube_1.y] == 9:
+                    result -= 15
+                    temp[block.cube_1.x][block.cube_1.y] == 20
                     
             # Check if the block is in O button
             if (
-                self.board[block.cube_1.x][block.cube_1.y] == 4 or self.board[block.cube_2.x][block.cube_2.y] == 4 or
-                self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_2.x][block.cube_2.y] == 6 or
-                self.board[block.cube_1.x][block.cube_1.y] == 11 or self.board[block.cube_2.x][block.cube_2.y] == 11
+                temp[block.cube_1.x][block.cube_1.y] == 4 or temp[block.cube_2.x][block.cube_2.y] == 4 or
+                temp[block.cube_1.x][block.cube_1.y] == 6 or temp[block.cube_2.x][block.cube_2.y] == 6 or
+                temp[block.cube_1.x][block.cube_1.y] == 11 or temp[block.cube_2.x][block.cube_2.y] == 11
             ):
                 result += 100
-                if self.board[block.cube_1.x][block.cube_1.y] == 4 or self.board[block.cube_1.x][block.cube_1.y] == 6 or self.board[block.cube_1.x][block.cube_1.y] == 11:
-                    self.board[block.cube_1.x][block.cube_1.y] = 20
+                if temp[block.cube_1.x][block.cube_1.y] == 4 or temp[block.cube_1.x][block.cube_1.y] == 6 or temp[block.cube_1.x][block.cube_1.y] == 11:
+                    temp[block.cube_1.x][block.cube_1.y] = 20
                 else:
-                    self.board[block.cube_2.x][block.cube_2.y] = 20
-            elif self.board[block.cube_1.x][block.cube_1.y] == 7 or self.board[block.cube_2.x][block.cube_2.y] == 7:
-                result -= 300
-                if self.board[block.cube_1.x][block.cube_1.y] == 7:
-                    self.board[block.cube_1.x][block.cube_1.y] = 20
+                    temp[block.cube_2.x][block.cube_2.y] = 20
+            elif temp[block.cube_1.x][block.cube_1.y] == 7 or temp[block.cube_2.x][block.cube_2.y] == 7:
+                result -= 15
+                if temp[block.cube_1.x][block.cube_1.y] == 7:
+                    temp[block.cube_1.x][block.cube_1.y] = 20
                 else:
-                    self.board[block.cube_2.x][block.cube_2.y] = 20
+                    temp[block.cube_2.x][block.cube_2.y] = 20
                     
             # Check if the block is in Teleport gates
             if block.isStanding():
-                if self.board[block.cube_1.x][block.cube_1.y] == 8:
+                if temp[block.cube_1.x][block.cube_1.y] == 8:
                     result += 150
-                    self.board[block.cube_1.x][block.cube_1.y] = 20
+                    temp[block.cube_1.x][block.cube_1.y] = 20
                     
             # Check if the tile is among orange tiles
             if block.isStanding():
                 if (
-                    self.board[block.cube_1.x][block.cube_1.y] == 1 and
-                    self.board[block.cube_1.x - 1][block.cube_1.y] == 5 and
-                    self.board[block.cube_1.x + 1][block.cube_1.y] == 5 and
-                    self.board[block.cube_1.x][block.cube_1.y - 1] == 5 and
-                    self.board[block.cube_1.x][block.cube_1.y + 1] == 5
+                    temp[block.cube_1.x][block.cube_1.y] == 1 and
+                    temp[block.cube_1.x - 1][block.cube_1.y] == 5 and
+                    temp[block.cube_1.x + 1][block.cube_1.y] == 5 and
+                    temp[block.cube_1.x][block.cube_1.y - 1] == 5 and
+                    temp[block.cube_1.x][block.cube_1.y + 1] == 5
                 ):
                     result += 50
-                    self.board[block.cube_1.x][block.cube_1.y] = 20
+                    temp[block.cube_1.x][block.cube_1.y] = 20
                     
             # Check if the block is in the way connect 2 parts of map
+            if (temp[block.cube_1.x][block.cube_1.y] != 20 and temp[block.cube_1.x][block.cube_1.y] != 0 and
+                ((temp[block.cube_1.x + 1][block.cube_1.y] == 0 and temp[block.cube_1.x - 1][block.cube_1.y] == 0) or
+                 (temp[block.cube_1.x][block.cube_1.y + 1] == 0 and temp[block.cube_1.x][block.cube_1.y - 1] == 0))):
+                result += 20
+                temp[block.cube_1.x][block.cube_1.y] = 20
+            if (temp[block.cube_2.x][block.cube_2.y] != 20 and temp[block.cube_2.x][block.cube_2.y] != 0 and
+                ((temp[block.cube_2.x + 1][block.cube_2.y] == 0 and temp[block.cube_2.x - 1][block.cube_2.y] == 0) or
+                 (temp[block.cube_2.x][block.cube_2.y + 1] == 0 and temp[block.cube_2.x][block.cube_2.y - 1] == 0))):
+                result += 20
+                temp[block.cube_2.x][block.cube_2.y] = 20
         
         # Check if the block is really near the goal
         second_last = ADN[self.lenADN - 2]
@@ -1113,15 +1125,13 @@ class GENETIC:
         # Main score
         last_block = ADN[self.lenADN - 1]
         if last_block.isStanding():
-            if self.board[last_block.cube_1.x][last_block.cube_1.y] == 2:
+            if temp[last_block.cube_1.x][last_block.cube_1.y] == 2:
                 result += 100000
         
-        a, b = dist(last_block.cube_1, self.board), dist(last_block.cube_2, self.board)
+        a, b = dist(last_block.cube_1, temp), dist(last_block.cube_2, temp)
         
-        # print(str(a) + ', ' + str(b))
-        
-        if (a == 1 or b == 1) or (a == 0 or b == 0) or (a == 2 and b == 2):
-            result -= 5
+        if (a == 1 or b == 1) or (a == 2 or b == 2):
+            result -= 3
         
         distance = a + b
         result -= distance
@@ -1154,7 +1164,7 @@ class GENETIC:
         count = int(self.numADN / 2)
         for i in range(count):
             index_ADN = random.randint(int(self.numADN / 2), self.numADN - 1)
-            index_Gen = random.randint(int(self.lenADN / 2), self.lenADN - 1)
+            index_Gen = random.randint(int(self.lenADN / 4), self.lenADN - 1)
             self.ADNs[index_ADN][index_Gen:] = self.InitGen(self.ADNs[index_ADN][index_Gen], self.lenADN - index_Gen)
     
     def path(self, ADN: list):
@@ -1207,6 +1217,9 @@ with open(file, 'w') as f:
         solver.bfs(init_block)
         
     elif sys.argv[1:][1] == 'Genetic' or sys.argv[1:][1] == 'genetic':
+        x, y = getGoal(board)
+        print('Goal: (' + str(x) + ', ' + str(y) + ')')
+        
         full = fullBoard(board, items)
         solver = GENETIC(items, full)
         solver.Genetic(init_block)
