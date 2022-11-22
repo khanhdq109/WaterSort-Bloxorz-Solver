@@ -1,2 +1,0 @@
-# Bloxorz-Solver
-Later
