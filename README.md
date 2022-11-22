@@ -1,1 +1,1 @@
-# WaterSort-Bloxorz-Solver
+# WaterSort & Bloxorz Solver
