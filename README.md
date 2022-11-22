@@ -17,5 +17,20 @@ python bloxorz.py <stage> <algorithm>
 ```
 Example: 
 ```
-python bloxorz.py 1 BFS, python bloxorz.py 3 genetic
+python bloxorz.py 1 BFS
 ```
+```
+python bloxorz.py 3 genetic
+```
+The outputs will be created in "Output" folder
+
+### Water Sort
+Running this command line to install all necessary libraries
+```
+pip install -r requirements.txt
+```
+Then running this to running the program
+```
+python WaterSortSolver.py
+```
+The outputs will be created in "output" folder
