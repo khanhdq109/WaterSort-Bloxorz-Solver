@@ -7,7 +7,7 @@ The solvers for Bloxorz and Water Sort problems using DFS, BFS, A* and Genetic A
 * [bloxorz.py](./bloxorz.py) 		: source code for Bloxorz Solver
 * [map](./map) 		              : the folder contains input maps for Water Sort problem
 * [output](./output) 		        : the folder contains outputs for Water Sort problem
-* [WaterSortSolver.py](./[WaterSortSolver.py) 		: source code for Water Sort Solver
+* [WaterSortSolver.py](./WaterSortSolver.py) 		: source code for Water Sort Solver
 
 ## Execute
 ### Bloxorz
