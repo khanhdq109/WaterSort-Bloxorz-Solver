@@ -1,5 +1,5 @@
 # WaterSort & Bloxorz Solver
-The solvers for Bloxorz and Water Sort problems using DFS, BFS, A* and Genetic Algorithm
+The solvers for Bloxorz and Water Sort problems using DFS, BFS, A* and Genetic Algorithm.
 
 ## Project structure
 * [Stage](./Stage) 		          : the folder contains input maps for Bloxorz problem
@@ -25,12 +25,12 @@ python bloxorz.py 3 genetic
 The outputs will be created in "Output" folder
 
 ### Water Sort
-Running this command line to install all necessary libraries
+Running this command line to install all necessary libraries:
 ```
 pip install -r requirements.txt
 ```
-Then running this to running the program
+Then running this to running the program:
 ```
 python WaterSortSolver.py
 ```
-The outputs will be created in "output" folder
+The outputs will be created in "output" folder.
