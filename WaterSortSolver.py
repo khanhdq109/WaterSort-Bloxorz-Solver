@@ -217,7 +217,7 @@ def aStar(s: State)->list:
         cost += 1
     return []
 
-def calctime(typ :str) ->list:
+def calctime(typ :str) -> list:
     filename = ""
     lst_time = []
     res = []
