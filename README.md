@@ -34,3 +34,6 @@ Then running this to running the program:
 python WaterSortSolver.py
 ```
 The outputs will be created in "output" folder.
+
+## Author
+Hung Nguyen - Quoc Khanh
